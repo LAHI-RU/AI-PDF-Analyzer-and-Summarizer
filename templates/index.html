@@ -32,6 +32,7 @@
             color: white;
             padding: 30px;
             text-align: center;
+            position: relative;
         }
 
         .header h1 {
@@ -43,6 +44,34 @@
         .header p {
             font-size: 1.1em;
             opacity: 0.9;
+        }
+
+        .status-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .status-ai-available {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .status-fallback {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ff9800;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .status-error {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid rgba(244, 67, 54, 0.3);
         }
 
         .main-content {
@@ -324,6 +353,15 @@
             border-left: 4px solid #2e7d32;
         }
 
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #ffc107;
+        }
+
         .key-info {
             background: #fff3cd;
             border: 1px solid #ffeaa7;
@@ -346,6 +384,110 @@
             white-space: pre-wrap;
         }
 
+        .api-status-banner {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .api-status-banner.show {
+            display: block;
+        }
+
+        .api-help {
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .api-help a {
+            color: #4facfe;
+            text-decoration: none;
+        }
+
+        .api-help a:hover {
+            text-decoration: underline;
+        }
+
+        .info-banner {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 1px solid #2196f3;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            color: #1565c0;
+        }
+
+        .info-banner h4 {
+            margin-bottom: 10px;
+            color: #0d47a1;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e1e5e9;
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .no-documents {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .no-documents h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .no-documents p {
+            margin-bottom: 20px;
+        }
+
+        .get-started-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .get-started-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(79, 172, 254, 0.3);
+        }
+
+        .qa-placeholder {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .comparison-placeholder {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 padding: 20px;
@@ -358,17 +500,98 @@
             .question-form {
                 flex-direction: column;
             }
+            
+            .status-indicator {
+                position: static;
+                margin-bottom: 10px;
+                display: inline-block;
+            }
+
+            .summary-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .upload-section {
+                padding: 20px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .main-content {
+                padding: 15px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
+            <div class="status-indicator" id="statusIndicator">Checking...</div>
             <h1>🤖 AI PDF Analyzer</h1>
             <p>Upload, analyze, summarize, and extract insights from your PDF documents</p>
         </div>
 
         <div class="main-content">
+            <!-- API Status Banner -->
+            <div class="api-status-banner" id="apiStatusBanner">
+                <strong>⚠️ AI Features Limited</strong>
+                <p>The application is running in fallback mode. Basic text analysis is available, but advanced AI features require OpenAI API configuration.</p>
+                <div class="api-help">
+                    <strong>To enable full AI features:</strong><br>
+                    1. Get an API key from <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI Platform</a><br>
+                    2. Add billing information at <a href="https://platform.openai.com/account/billing" target="_blank">OpenAI Billing</a><br>
+                    3. Update your .env file with the API key<br>
+                    4. Restart the application
+                </div>
+            </div>
+
+            <!-- Welcome Info Banner -->
+            <div class="info-banner" id="welcomeBanner">
+                <h4>🎉 Welcome to AI PDF Analyzer!</h4>
+                <p>This powerful tool helps you extract insights from PDF documents using AI technology. Upload a PDF to get started!</p>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">📄</div>
+                        <h5>Smart Analysis</h5>
+                        <p>Extract text and generate intelligent summaries</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💬</div>
+                        <h5>Ask Questions</h5>
+                        <p>Get answers about your document content</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h5>Compare Docs</h5>
+                        <p>Find similarities and differences between documents</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔍</div>
+                        <h5>Key Info</h5>
+                        <p>Automatically extract important dates, names, and figures</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Upload Section -->
             <div class="upload-section" id="uploadSection">
                 <div class="upload-icon">📄</div>
@@ -395,7 +618,13 @@
             <div class="tab-content active" id="documentsTab">
                 <h3>Uploaded Documents</h3>
                 <div class="document-grid" id="documentGrid">
-                    <!-- Documents will be loaded here -->
+                    <div class="no-documents">
+                        <h3>📚 No Documents Yet</h3>
+                        <p>Upload your first PDF document to get started with AI-powered analysis!</p>
+                        <button class="get-started-btn" onclick="document.getElementById('fileInput').click()">
+                            📄 Upload First Document
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -411,11 +640,17 @@
                         </select>
                     </div>
                     <div id="summaryContent">
-                        <p>Select a document from the Documents tab to view its summary.</p>
+                        <div class="no-documents">
+                            <h4>📋 No Document Selected</h4>
+                            <p>Select a document from the Documents tab to view its summary, or upload a new PDF to get started.</p>
+                            <button class="get-started-btn" onclick="showTab('documents')">
+                                📚 View Documents
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="key-info" id="keyInfoSection" style="display: none;">
-                    <h4>Key Information Extracted</h4>
+                    <h4>🔍 Key Information Extracted</h4>
                     <pre id="keyInfoContent"></pre>
                 </div>
             </div>
@@ -423,14 +658,26 @@
             <!-- Questions Tab -->
             <div class="tab-content" id="questionsTab">
                 <div class="question-section">
-                    <h3>Ask Questions About Your Document</h3>
+                    <h3>💬 Ask Questions About Your Document</h3>
                     <div class="question-form">
                         <input type="text" class="question-input" id="questionInput" 
-                               placeholder="Ask anything about your document..." onkeypress="handleQuestionKeyPress(event)">
-                        <button class="ask-btn" onclick="askQuestion()">Ask</button>
+                               placeholder="Ask anything about your document..." 
+                               onkeypress="handleQuestionKeyPress(event)"
+                               disabled>
+                        <button class="ask-btn" onclick="askQuestion()" id="askButton" disabled>Ask</button>
                     </div>
                     <div id="qaHistory">
-                        <!-- Q&A history will appear here -->
+                        <div class="qa-placeholder">
+                            <h4>🤖 Ready to Answer Your Questions</h4>
+                            <p>Upload and select a document first, then ask any questions about its content!</p>
+                            <div style="margin-top: 20px;">
+                                <strong>Example questions:</strong><br>
+                                • "What are the main topics covered?"<br>
+                                • "What dates are mentioned?"<br>
+                                • "Who are the key people mentioned?"<br>
+                                • "What are the action items?"
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -438,17 +685,31 @@
             <!-- Compare Tab -->
             <div class="tab-content" id="compareTab">
                 <div class="comparison-section">
-                    <h3>Compare Documents</h3>
+                    <h3>📊 Compare Documents</h3>
                     <div class="document-selectors">
-                        <select class="document-selector" id="doc1Select">
+                        <select class="document-selector" id="doc1Select" disabled>
                             <option value="">Select first document</option>
                         </select>
-                        <select class="document-selector" id="doc2Select">
+                        <select class="document-selector" id="doc2Select" disabled>
                             <option value="">Select second document</option>
                         </select>
                     </div>
-                    <button class="compare-btn" onclick="compareDocuments()">Compare Documents</button>
-                    <div id="comparisonResults"></div>
+                    <button class="compare-btn" onclick="compareDocuments()" id="compareButton" disabled>
+                        Compare Documents
+                    </button>
+                    <div id="comparisonResults">
+                        <div class="comparison-placeholder">
+                            <h4>📈 Document Comparison</h4>
+                            <p>Upload at least two documents to compare their similarities, differences, and key insights.</p>
+                            <div style="margin-top: 20px;">
+                                <strong>Comparison features:</strong><br>
+                                • Similarity percentage<br>
+                                • Common themes and topics<br>
+                                • Unique content in each document<br>
+                                • Detailed AI analysis
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -457,12 +718,60 @@
     <script>
         let currentDocument = null;
         let documents = [];
+        let aiAvailable = false;
 
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
+            checkApiStatus();
             loadDocuments();
             setupFileUpload();
+            hideWelcomeBannerAfterDelay();
         });
+
+        // Hide welcome banner after 10 seconds
+        function hideWelcomeBannerAfterDelay() {
+            setTimeout(() => {
+                const welcomeBanner = document.getElementById('welcomeBanner');
+                if (welcomeBanner) {
+                    welcomeBanner.style.transition = 'opacity 0.5s ease';
+                    welcomeBanner.style.opacity = '0';
+                    setTimeout(() => {
+                        welcomeBanner.style.display = 'none';
+                    }, 500);
+                }
+            }, 10000);
+        }
+
+        // Check API status
+        async function checkApiStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const status = await response.json();
+                
+                aiAvailable = status.ai_available;
+                updateStatusIndicator(status);
+                
+                if (!status.ai_available) {
+                    document.getElementById('apiStatusBanner').classList.add('show');
+                }
+            } catch (error) {
+                console.error('Error checking API status:', error);
+                updateStatusIndicator({ ai_available: false, message: 'Connection error' });
+            }
+        }
+
+        // Update status indicator
+        function updateStatusIndicator(status) {
+            const indicator = document.getElementById('statusIndicator');
+            
+            if (status.ai_available) {
+                indicator.textContent = '✅ AI Ready';
+                indicator.className = 'status-indicator status-ai-available';
+            } else {
+                indicator.textContent = '⚠️ Fallback Mode';
+                indicator.className = 'status-indicator status-fallback';
+            }
+        }
 
         // Setup file upload functionality
         function setupFileUpload() {
@@ -500,6 +809,8 @@
                     fileInput.files = files;
                     uploadBtn.disabled = false;
                     uploadBtn.textContent = `Upload "${files[0].name}"`;
+                } else {
+                    showError('Please drop a PDF file');
                 }
             });
         }
@@ -530,6 +841,11 @@
 
                 if (result.success) {
                     showSuccess(`Document "${result.filename}" uploaded and analyzed successfully!`);
+                    
+                    if (!result.ai_available) {
+                        showWarning('Analysis completed in fallback mode. For advanced AI features, please configure your OpenAI API key.');
+                    }
+                    
                     currentDocument = result;
                     loadDocuments();
                     
@@ -541,11 +857,17 @@
                     // Show summary tab
                     showTab('summary');
                     displaySummary(result);
+                    
+                    // Enable Q&A and comparison if documents available
+                    updateUIState();
                 } else {
                     showError(result.error || 'Upload failed');
                 }
             } catch (error) {
                 showError('Network error: ' + error.message);
+            } finally {
+                uploadBtn.disabled = true;
+                uploadBtn.textContent = 'Upload & Analyze';
             }
         }
 
@@ -559,9 +881,40 @@
                     documents = result.documents;
                     displayDocuments(documents);
                     updateDocumentSelectors();
+                    updateUIState();
                 }
             } catch (error) {
                 console.error('Error loading documents:', error);
+            }
+        }
+
+        // Update UI state based on available documents
+        function updateUIState() {
+            const hasDocuments = documents.length > 0;
+            const hasTwoOrMoreDocs = documents.length >= 2;
+            
+            // Enable/disable Q&A
+            document.getElementById('questionInput').disabled = !hasDocuments;
+            document.getElementById('askButton').disabled = !hasDocuments;
+            
+            // Enable/disable comparison
+            document.getElementById('doc1Select').disabled = !hasTwoOrMoreDocs;
+            document.getElementById('doc2Select').disabled = !hasTwoOrMoreDocs;
+            document.getElementById('compareButton').disabled = !hasTwoOrMoreDocs;
+            
+            // Update placeholders
+            if (hasDocuments) {
+                const qaPlaceholder = document.querySelector('.qa-placeholder');
+                if (qaPlaceholder) {
+                    qaPlaceholder.style.display = 'none';
+                }
+            }
+            
+            if (hasTwoOrMoreDocs) {
+                const compPlaceholder = document.querySelector('.comparison-placeholder');
+                if (compPlaceholder) {
+                    compPlaceholder.style.display = 'none';
+                }
             }
         }
 
@@ -570,7 +923,15 @@
             const grid = document.getElementById('documentGrid');
             
             if (docs.length === 0) {
-                grid.innerHTML = '<p>No documents uploaded yet. Upload your first PDF to get started!</p>';
+                grid.innerHTML = `
+                    <div class="no-documents">
+                        <h3>📚 No Documents Yet</h3>
+                        <p>Upload your first PDF document to get started with AI-powered analysis!</p>
+                        <button class="get-started-btn" onclick="document.getElementById('fileInput').click()">
+                            📄 Upload First Document
+                        </button>
+                    </div>
+                `;
                 return;
             }
 
@@ -612,12 +973,12 @@
             const keyInfoContent = document.getElementById('keyInfoContent');
 
             summaryContent.innerHTML = `
-                <h4>${doc.filename}</h4>
+                <h4>📄 ${doc.filename}</h4>
                 <div style="margin: 15px 0; color: #666; font-size: 0.9em;">
                     ${doc.word_count} words • ${doc.page_count} pages • 
                     Uploaded: ${new Date(doc.upload_date || Date.now()).toLocaleDateString()}
                 </div>
-                <div style="line-height: 1.6;">
+                <div style="line-height: 1.6; background: #f8f9fa; padding: 20px; border-radius: 10px;">
                     ${doc.summary.replace(/\n/g, '<br>')}
                 </div>
             `;
@@ -654,11 +1015,17 @@
                 if (result.summary) {
                     currentDocument.summary = result.summary;
                     displaySummary(currentDocument);
+                    
+                    if (!result.ai_available) {
+                        showWarning('Summary generated in fallback mode. Configure OpenAI API for advanced AI features.');
+                    }
                 } else {
                     showError(result.error || 'Failed to generate summary');
+                    displaySummary(currentDocument); // Restore previous summary
                 }
             } catch (error) {
                 showError('Error generating summary: ' + error.message);
+                displaySummary(currentDocument); // Restore previous summary
             }
         }
 
@@ -678,6 +1045,12 @@
             }
 
             const qaHistory = document.getElementById('qaHistory');
+            
+            // Hide placeholder if it exists
+            const placeholder = qaHistory.querySelector('.qa-placeholder');
+            if (placeholder) {
+                placeholder.style.display = 'none';
+            }
             
             // Add question to history
             const questionDiv = document.createElement('div');
@@ -706,7 +1079,7 @@
                 const result = await response.json();
                 
                 // Remove loading indicator and add answer
-                questionDiv.innerHTML = `
+                let answerHtml = `
                     <div style="background: #f0f8ff; padding: 15px; border-radius: 10px; margin: 10px 0; border-left: 4px solid #4facfe;">
                         <strong>Q: ${question}</strong>
                     </div>
@@ -714,6 +1087,16 @@
                         <strong>A:</strong> ${result.answer.replace(/\n/g, '<br>')}
                     </div>
                 `;
+                
+                if (!result.ai_available) {
+                    answerHtml += `
+                        <div class="warning" style="margin-top: 10px; font-size: 0.9em;">
+                            ⚠️ Answer generated in fallback mode. Configure OpenAI API for intelligent responses.
+                        </div>
+                    `;
+                }
+                
+                questionDiv.innerHTML = answerHtml;
             } catch (error) {
                 questionDiv.innerHTML = `
                     <div style="background: #f0f8ff; padding: 15px; border-radius: 10px; margin: 10px 0; border-left: 4px solid #4facfe;">
@@ -726,7 +1109,8 @@
 
         // Handle Enter key in question input
         function handleQuestionKeyPress(event) {
-            if (event.key === 'Enter') {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
                 askQuestion();
             }
         }
@@ -760,6 +1144,12 @@
                 return;
             }
 
+            // Hide placeholder
+            const placeholder = resultsDiv.querySelector('.comparison-placeholder');
+            if (placeholder) {
+                placeholder.style.display = 'none';
+            }
+
             resultsDiv.innerHTML = '<div class="loading"><div class="spinner"></div>Comparing documents...</div>';
 
             try {
@@ -777,9 +1167,9 @@
                 const result = await response.json();
                 
                 if (result.comparison) {
-                    resultsDiv.innerHTML = `
+                    let comparisonHtml = `
                         <div style="background: white; border-radius: 15px; padding: 30px; margin-top: 20px; border: 1px solid #e1e5e9;">
-                            <h4>Comparison Results</h4>
+                            <h4>📊 Comparison Results</h4>
                             <div style="margin: 20px 0;">
                                 <strong>Documents:</strong> ${result.document1} vs ${result.document2}
                             </div>
@@ -789,11 +1179,21 @@
                                     ${result.comparison.similarity_score}%
                                 </span>
                             </div>
-                            <div style="line-height: 1.6;">
+                            <div style="line-height: 1.6; background: #f8f9fa; padding: 20px; border-radius: 10px;">
                                 ${result.comparison.ai_analysis.replace(/\n/g, '<br>')}
                             </div>
-                        </div>
                     `;
+                    
+                    if (!result.ai_available) {
+                        comparisonHtml += `
+                            <div class="warning" style="margin-top: 15px;">
+                                ⚠️ Comparison performed in fallback mode. Configure OpenAI API for detailed AI analysis.
+                            </div>
+                        `;
+                    }
+                    
+                    comparisonHtml += '</div>';
+                    resultsDiv.innerHTML = comparisonHtml;
                 } else {
                     showError(result.error || 'Comparison failed');
                 }
@@ -825,6 +1225,39 @@
                     tab.classList.add('active');
                 }
             });
+
+            // Update placeholders based on current state
+            if (tabName === 'questions' && documents.length === 0) {
+                const qaHistory = document.getElementById('qaHistory');
+                const placeholder = qaHistory.querySelector('.qa-placeholder');
+                if (placeholder) {
+                    placeholder.innerHTML = `
+                        <h4>🤖 Ready to Answer Your Questions</h4>
+                        <p>Upload and select a document first, then ask any questions about its content!</p>
+                        <div style="margin-top: 20px;">
+                            <button class="get-started-btn" onclick="showTab('documents')">
+                                📚 Upload Documents
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+
+            if (tabName === 'compare' && documents.length < 2) {
+                const compResults = document.getElementById('comparisonResults');
+                const placeholder = compResults.querySelector('.comparison-placeholder');
+                if (placeholder) {
+                    placeholder.innerHTML = `
+                        <h4>📈 Document Comparison</h4>
+                        <p>Upload at least two documents to compare their similarities, differences, and key insights.</p>
+                        <div style="margin-top: 20px;">
+                            <button class="get-started-btn" onclick="showTab('documents')">
+                                📚 Upload More Documents
+                            </button>
+                        </div>
+                    `;
+                }
+            }
         }
 
         // Listen for summary type changes
@@ -834,7 +1267,7 @@
         function showError(message) {
             const errorDiv = document.createElement('div');
             errorDiv.className = 'error';
-            errorDiv.textContent = message;
+            errorDiv.innerHTML = `<strong>❌ Error:</strong> ${message}`;
             
             // Insert at the top of main content
             const mainContent = document.querySelector('.main-content');
@@ -842,14 +1275,16 @@
             
             // Remove after 5 seconds
             setTimeout(() => {
-                errorDiv.remove();
+                if (errorDiv.parentNode) {
+                    errorDiv.remove();
+                }
             }, 5000);
         }
 
         function showSuccess(message) {
             const successDiv = document.createElement('div');
             successDiv.className = 'success';
-            successDiv.textContent = message;
+            successDiv.innerHTML = `<strong>✅ Success:</strong> ${message}`;
             
             // Insert at the top of main content
             const mainContent = document.querySelector('.main-content');
@@ -857,9 +1292,108 @@
             
             // Remove after 5 seconds
             setTimeout(() => {
-                successDiv.remove();
+                if (successDiv.parentNode) {
+                    successDiv.remove();
+                }
             }, 5000);
         }
+
+        function showWarning(message) {
+            const warningDiv = document.createElement('div');
+            warningDiv.className = 'warning';
+            warningDiv.innerHTML = `<strong>⚠️ Warning:</strong> ${message}`;
+            
+            // Insert at the top of main content
+            const mainContent = document.querySelector('.main-content');
+            mainContent.insertBefore(warningDiv, mainContent.firstChild);
+            
+            // Remove after 7 seconds
+            setTimeout(() => {
+                if (warningDiv.parentNode) {
+                    warningDiv.remove();
+                }
+            }, 7000);
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(event) {
+            // Ctrl/Cmd + U for upload
+            if ((event.ctrlKey || event.metaKey) && event.key === 'u') {
+                event.preventDefault();
+                document.getElementById('fileInput').click();
+            }
+            
+            // Escape to close notifications
+            if (event.key === 'Escape') {
+                document.querySelectorAll('.error, .success, .warning').forEach(el => {
+                    if (el.parentNode) {
+                        el.remove();
+                    }
+                });
+            }
+        });
+
+        // Auto-save scroll position
+        window.addEventListener('beforeunload', function() {
+            localStorage.setItem('scrollPosition', window.scrollY);
+        });
+
+        window.addEventListener('load', function() {
+            const scrollPosition = localStorage.getItem('scrollPosition');
+            if (scrollPosition) {
+                window.scrollTo(0, parseInt(scrollPosition));
+                localStorage.removeItem('scrollPosition');
+            }
+        });
+
+        // Add tooltips for better UX
+        function addTooltips() {
+            const uploadBtn = document.getElementById('uploadBtn');
+            const askBtn = document.getElementById('askButton');
+            const compareBtn = document.getElementById('compareButton');
+            
+            if (uploadBtn.disabled) {
+                uploadBtn.title = 'Select a PDF file first';
+            }
+            
+            if (askBtn.disabled) {
+                askBtn.title = 'Upload and select a document first';
+            }
+            
+            if (compareBtn.disabled) {
+                compareBtn.title = 'Upload at least two documents first';
+            }
+        }
+
+        // Initialize tooltips
+        setInterval(addTooltips, 1000);
+
+        // Performance optimization: Lazy load document content
+        function optimizeDocumentDisplay() {
+            const cards = document.querySelectorAll('.document-card');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            });
+
+            cards.forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                observer.observe(card);
+            });
+        }
+
+        // Call optimization after documents load
+        const originalDisplayDocuments = displayDocuments;
+        displayDocuments = function(docs) {
+            originalDisplayDocuments(docs);
+            setTimeout(optimizeDocumentDisplay, 100);
+        };
     </script>
 </body>
 </html>
